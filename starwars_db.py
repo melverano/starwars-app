@@ -3,38 +3,67 @@ import json
 import psycopg2
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
 from psycopg2 import Error
+import prodenv
 
 # Pull data from API site
 people = json.loads(requests.get('https://swapi.dev/api/people').text)['results']
 starships = json.loads(requests.get('https://swapi.dev/api/starships').text)['results']
 
+# Заглушки для первоначального создания бд и выгрузки данных
+def first_setup_app():
+    try:
+        create_db(prodenv.db_username, prodenv.db_password, prodenv.db_ip, prodenv.db_port, prodenv.db_name)
+    except(Exception, Error) as error:
+        pass
+
+    try:
+        create_table_starships()
+    except(Exception, Error) as error:
+        pass
+
+    try:
+        create_table_characters()
+    except(Exception, Error) as error:
+        pass
+
+    try:
+        update_starships_table()
+    except(Exception, Error) as error:
+        pass
+
+    try:
+        update_characters_table()
+    except(Exception, Error) as error:
+        pass
+
 
 def create_db(user, password, host, port, db_name):
-    connection = psycopg2.connect(user=user,
-                                  password=password,
-                                  host=host,
-                                  port=port)
+    connection = psycopg2.connect(user=prodenv.db_username,
+                                  password=prodenv.db_password,
+                                  host=prodenv.db_ip,
+                                  port=prodenv.db_port)
 
     connection.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
     cursor = connection.cursor()
-    sql_create_database = 'create database ' + db_name
+    sql_create_database = 'create database ' + prodenv.db_name
     cursor.execute(sql_create_database)
     cursor.close()
     connection.close()
 
 
 def create_table_characters():
+    connection = False
     try:
         # Подключиться к существующей базе данных
-        connection = psycopg2.connect(user="postgres",
-                                      password="mysecretpassword",
-                                      host="127.0.0.1",
-                                      port="8081",
-                                      database="postgres_db")
+        connection = psycopg2.connect(user=prodenv.db_username,
+                                      password=prodenv.db_password,
+                                      host=prodenv.db_ip,
+                                      port=prodenv.db_port,
+                                      database=prodenv.db_name)
         # Создайте курсор для выполнения операций с базой данных
         cursor = connection.cursor()
         # SQL-запрос для создания новой таблицы
-        create_table_query = '''CREATE TABLE people 
+        create_table_query = '''CREATE TABLE people
                              (ID SERIAL PRIMARY KEY,
                              NAME           TEXT    NOT NULL,
                              GENDER           TEXT    NOT NULL,
@@ -59,15 +88,15 @@ def create_table_characters():
 def create_table_starships():
     try:
         # Подключиться к существующей базе данных
-        connection = psycopg2.connect(user="postgres",
-                                      password="mysecretpassword",
-                                      host="127.0.0.1",
-                                      port="8081",
-                                      database="postgres_db")
+        connection = psycopg2.connect(user=prodenv.db_username,
+                                      password=prodenv.db_password,
+                                      host=prodenv.db_ip,
+                                      port=prodenv.db_port,
+                                      database=prodenv.db_name)
         # Создайте курсор для выполнения операций с базой данных
         cursor = connection.cursor()
         # SQL-запрос для создания новой таблицы
-        create_table_query = '''CREATE TABLE starships 
+        create_table_query = '''CREATE TABLE starships
                              (ID SERIAL PRIMARY KEY,
                              NAME           TEXT    NOT NULL,
                              MODEL           TEXT    NOT NULL,
@@ -93,11 +122,11 @@ def create_table_starships():
 def store_characters_to_db():
     try:
         # Подключиться к существующей базе данных
-        connection = psycopg2.connect(user="postgres",
-                                      password="mysecretpassword",
-                                      host="127.0.0.1",
-                                      port="8081",
-                                      database="postgres_db")
+        connection = psycopg2.connect(user=prodenv.db_username,
+                                      password=prodenv.db_password,
+                                      host=prodenv.db_ip,
+                                      port=prodenv.db_port,
+                                      database=prodenv.db_name)
         cursor = connection.cursor()
         # Выполнение SQL-запроса для вставки данных в таблицу
         for each_dict in people:
@@ -128,11 +157,11 @@ def store_characters_to_db():
 def store_starships_to_db():
     try:
         # Подключиться к существующей базе данных
-        connection = psycopg2.connect(user="postgres",
-                                      password="mysecretpassword",
-                                      host="127.0.0.1",
-                                      port="8081",
-                                      database="postgres_db")
+        connection = psycopg2.connect(user=prodenv.db_username,
+                                      password=prodenv.db_password,
+                                      host=prodenv.db_ip,
+                                      port=prodenv.db_port,
+                                      database=prodenv.db_name)
         cursor = connection.cursor()
         # Выполнение SQL-запроса для вставки данных в таблицу
         for each_dict in starships:
@@ -164,11 +193,11 @@ def store_starships_to_db():
 def pull_data_from_characters():
     try:
         # Подключиться к существующей базе данных
-        connection = psycopg2.connect(user="postgres",
-                                      password="mysecretpassword",
-                                      host="127.0.0.1",
-                                      port="8081",
-                                      database="postgres_db")
+        connection = psycopg2.connect(user=prodenv.db_username,
+                                      password=prodenv.db_password,
+                                      host=prodenv.db_ip,
+                                      port=prodenv.db_port,
+                                      database=prodenv.db_name)
         cursor = connection.cursor()
         cursor.execute("SELECT * from people")
         data = cursor.fetchall()
@@ -185,11 +214,11 @@ def pull_data_from_characters():
 def pull_data_from_starships():
     try:
         # Подключиться к существующей базе данных
-        connection = psycopg2.connect(user="postgres",
-                                      password="mysecretpassword",
-                                      host="127.0.0.1",
-                                      port="8081",
-                                      database="postgres_db")
+        connection = psycopg2.connect(user=prodenv.db_username,
+                                      password=prodenv.db_password,
+                                      host=prodenv.db_ip,
+                                      port=prodenv.db_port,
+                                      database=prodenv.db_name)
         cursor = connection.cursor()
         cursor.execute("SELECT * from starships")
         data = cursor.fetchall()
@@ -206,11 +235,11 @@ def pull_data_from_starships():
 def pull_data_from_starships_ordered():
     try:
         # Подключиться к существующей базе данных
-        connection = psycopg2.connect(user="postgres",
-                                      password="mysecretpassword",
-                                      host="127.0.0.1",
-                                      port="8081",
-                                      database="postgres_db")
+        connection = psycopg2.connect(user=prodenv.db_username,
+                                      password=prodenv.db_password,
+                                      host=prodenv.db_ip,
+                                      port=prodenv.db_port,
+                                      database=prodenv.db_name)
         cursor = connection.cursor()
         cursor.execute("SELECT * FROM starships WHERE PILOTS[1] != 'none' ORDER BY CARGO_CAPACITY DESC")
         data = cursor.fetchall()
@@ -227,11 +256,11 @@ def pull_data_from_starships_ordered():
 def update_characters_table():
     try:
         # Подключиться к существующей базе данных
-        connection = psycopg2.connect(user="postgres",
-                                      password="mysecretpassword",
-                                      host="127.0.0.1",
-                                      port="8081",
-                                      database="postgres_db")
+        connection = psycopg2.connect(user=prodenv.db_username,
+                                      password=prodenv.db_password,
+                                      host=prodenv.db_ip,
+                                      port=prodenv.db_port,
+                                      database=prodenv.db_name)
         cursor = connection.cursor()
         # Выполнение SQL-запроса для вставки данных в таблицу
         for each_dict in people:
@@ -259,11 +288,11 @@ def update_characters_table():
 def update_starships_table():
     try:
         # Подключиться к существующей базе данных
-        connection = psycopg2.connect(user="postgres",
-                                      password="mysecretpassword",
-                                      host="127.0.0.1",
-                                      port="8081",
-                                      database="postgres_db")
+        connection = psycopg2.connect(user=prodenv.db_username,
+                                      password=prodenv.db_password,
+                                      host=prodenv.db_ip,
+                                      port=prodenv.db_port,
+                                      database=prodenv.db_name)
         cursor = connection.cursor()
         # Выполнение SQL-запроса для вставки данных в таблицу
         for each_dict in starships:

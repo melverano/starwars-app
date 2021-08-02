@@ -4,15 +4,8 @@ import starwars_db
 
 app = Flask(__name__)
 
-try:
-    starwars_db.create_db("postgres", "mysecretpassword", "127.0.0.1", "8081", "postgres_db")
-    starwars_db.create_table_starships()
-    starwars_db.create_table_characters()
-    starwars_db.update_starships_table()
-    starwars_db.update_characters_table()
-except(Exception, Error) as error:
-    pass
-
+# Создание бд и выгрузка данных
+prodenv.first_setup_app()
 
 @app.route('/')
 def index():
