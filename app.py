@@ -5,7 +5,7 @@ import starwars_db
 app = Flask(__name__)
 
 # Создание бд и выгрузка данных
-prodenv.first_setup_app()
+starwars_db.first_setup_app()
 
 @app.route('/')
 def index():
