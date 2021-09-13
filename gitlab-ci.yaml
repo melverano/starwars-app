@@ -1,0 +1,22 @@
+variables:
+    DOCKER_REGISTRY: $ECR_ENDPOINT
+    APP_NAME: starwars
+#    DOCKER_HOST: tcp://docker:2375
+
+publish:
+    tags:
+        - docker-publish
+    when: manual
+    image: 
+        name: amazon/aws-cli
+        entrypoint: [""]
+    services:
+        - docker:dind
+    before_script:
+        - amazon-linux-extras install docker
+        - aws --version
+        - docker --version
+    script:
+        - docker build -t $ECR_ENDPOINT:$CI_PIPELINE_IID .
+        - aws ecr get-login-password | docker login --username AWS --password-stdin $ECR_ENDPOINT
+        - docker push $ECR_ENDPOINT:$CI_PIPELINE_IID
